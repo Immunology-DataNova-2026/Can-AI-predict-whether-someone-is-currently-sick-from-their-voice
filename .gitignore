@@ -1,0 +1,33 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+.agents/
+venv/
+env/
+
+logs/
+processed_data/
+external_datasets/
+bin/
+*.log
+
+# --- coswara-fail: non-model outputs (keep ignored) ---
+coswara-fail/artifacts/
+coswara-fail/figures/
+coswara-fail/reports/*.html
+coswara-fail/reports/*.pdf
+coswara-fail/results.json
+
+# NOTE: ALL trained models are committed via Git LFS — the deployable models in
+# the experiment folders AND the full respiratory model set in coswara-fail/models/.
+
+# paper (excluded from version control) + generated pipeline outputs (reproducible)
+paper/
+metrics.json
+work/
+figures/
+results/

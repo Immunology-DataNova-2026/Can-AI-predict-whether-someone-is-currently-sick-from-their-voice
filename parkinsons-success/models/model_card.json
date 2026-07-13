@@ -1,0 +1,10 @@
+{
+  "task": "Parkinson's disease detection",
+  "dataset": "Sakar 2018 (UCI), 252 speakers",
+  "model": "RandomForest(600, class_weight=balanced) on 752 Sakar acoustic features",
+  "input": "a 752-value feature vector in the Sakar column order (see features list in the .pkl)",
+  "output": "P(parkinsons); >=0.5 -> parkinsons",
+  "honest_auc_speaker_independent": 0.83,
+  "note": "Input must be the Sakar feature schema (jitter/shimmer/HNR/MFCC/TQWT). Extracting these from arbitrary audio requires the Sakar feature pipeline.",
+  "usage": "python 04_parkinsons_sakar/predict.py your_features.csv"
+}

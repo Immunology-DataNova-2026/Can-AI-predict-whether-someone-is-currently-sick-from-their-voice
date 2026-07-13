@@ -1,0 +1,10 @@
+{
+  "task": "voice-disorder detection (healthy vs pathological)",
+  "dataset": "Saarbrucken Voice Database (SVD), 1119 speakers",
+  "model": "SVC(kernel=rbf, C=10, class_weight=balanced) on eGeMAPS v02 (88 features)",
+  "input": "one eGeMAPS-v02 functional vector from a sustained /a/ vowel (16 kHz)",
+  "output": "P(pathological); >=0.5 -> pathological",
+  "honest_auc_speaker_independent": 0.86,
+  "note": "0.86 uses per-speaker aggregation across ~14 vowels; single-recording AUC ~0.76.",
+  "usage": "python 05_voice_disorders_svd/predict.py your_voice.wav"
+}

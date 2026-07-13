@@ -1,0 +1,10 @@
+{
+  "task": "voice-disorder detection (healthy vs pathological)",
+  "dataset": "VOICED (PhysioNet), 208 speakers",
+  "model": "LogisticRegression on eGeMAPS v02 (88 features)",
+  "input": "one eGeMAPS-v02 vector from a sustained /a/ vowel (16 kHz)",
+  "output": "P(pathological); >=0.5 -> pathological",
+  "honest_auc": 0.65,
+  "warning": "Weak corpus-limited model (~0.65). Prefer ../05_voice_disorders_svd/ (0.86).",
+  "usage": "python 02_voiced_voice_disorders/predict.py your_voice.wav"
+}
