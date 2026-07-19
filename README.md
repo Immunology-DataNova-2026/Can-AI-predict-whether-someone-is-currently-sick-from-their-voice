@@ -2,8 +2,8 @@
 
 | Experiment | Accuracy | AUC |
 |---|---|---|
-| coswara-fail | 0.53 | 0.54 |
-| voiced-fail | 0.63 | 0.65 |
-| parkinsons-uci-fail | 0.72 | 0.71 |
-| parkinsons-success | 0.80 | 0.83 |
-| svd-success | 0.80 | 0.86 |
+| acute-illness-cross-corpus | 0.53 | 0.54 |
+| voice-disorder-voiced | 0.63 | 0.65 |
+| parkinsons-oxford-uci | 0.72 | 0.71 |
+| parkinsons-sakar | 0.80 | 0.83 |
+| voice-disorder-svd | 0.80 | 0.86 |
