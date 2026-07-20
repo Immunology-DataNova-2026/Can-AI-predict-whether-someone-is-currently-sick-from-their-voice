@@ -4,7 +4,32 @@
   "model": "RandomForest(600, class_weight=balanced) on 752 Sakar acoustic features",
   "input": "a 752-value feature vector in the Sakar column order (see features list in the .pkl)",
   "output": "P(parkinsons); >=0.5 -> parkinsons",
-  "honest_auc_speaker_independent": 0.83,
   "note": "Input must be the Sakar feature schema (jitter/shimmer/HNR/MFCC/TQWT). Extracting these from arbitrary audio requires the Sakar feature pipeline.",
-  "usage": "python parkinsons-sakar/predict.py your_features.csv"
+  "usage": "python parkinsons-sakar/predict.py your_features.csv",
+  "auc_per_record": 0.8386758066903492,
+  "auc_per_speaker": 0.8499418218085106,
+  "auc_per_speaker_ci95": [
+    0.7957590305129323,
+    0.9013907248529379
+  ],
+  "accuracy_per_record": 0.8158940397350993,
+  "accuracy_per_speaker": 0.8214285714285714,
+  "evaluation": "GroupKFold(5) by speaker id, seed 42",
+  "aggregation_note": "per_speaker averages predicted probability across a speaker's recordings",
+  "confusion_per_speaker": [
+    [
+      35,
+      29
+    ],
+    [
+      16,
+      172
+    ]
+  ],
+  "confusion_order": "[[TN, FP], [FN, TP]] (scikit-learn order)",
+  "positive_class": "1 = parkinsons",
+  "bootstrap": {
+    "n_resamples": 2000,
+    "seed": 42
+  }
 }

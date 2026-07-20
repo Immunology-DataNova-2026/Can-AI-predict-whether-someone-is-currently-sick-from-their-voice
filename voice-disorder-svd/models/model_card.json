@@ -4,7 +4,32 @@
   "model": "SVC(kernel=rbf, C=10, class_weight=balanced) on eGeMAPS v02 (88 features)",
   "input": "one eGeMAPS-v02 functional vector from a sustained /a/ vowel (16 kHz)",
   "output": "P(pathological); >=0.5 -> pathological",
-  "honest_auc_speaker_independent": 0.86,
   "note": "0.86 uses per-speaker aggregation across ~14 vowels; single-recording AUC ~0.76.",
-  "usage": "python voice-disorder-svd/predict.py your_voice.wav"
+  "usage": "python voice-disorder-svd/predict.py your_voice.wav",
+  "auc_per_record": 0.7644593326894301,
+  "auc_per_speaker": 0.8662813486131873,
+  "auc_per_speaker_ci95": [
+    0.8438814851931531,
+    0.8878918817244777
+  ],
+  "accuracy_per_record": 0.7095467695274831,
+  "accuracy_per_speaker": 0.8042895442359249,
+  "evaluation": "GroupKFold(5) by speaker id, seed 42",
+  "aggregation_note": "per_speaker averages predicted probability across a speaker's recordings",
+  "confusion_per_speaker": [
+    [
+      618,
+      51
+    ],
+    [
+      168,
+      282
+    ]
+  ],
+  "confusion_order": "[[TN, FP], [FN, TP]] (scikit-learn order)",
+  "positive_class": "1 = pathological",
+  "bootstrap": {
+    "n_resamples": 2000,
+    "seed": 42
+  }
 }
