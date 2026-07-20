@@ -10,22 +10,23 @@ venv/
 env/
 
 logs/
+*.log
 processed_data/
 external_datasets/
 bin/
-*.log
 
-# --- coswara-fail: non-model outputs (keep ignored) ---
-coswara-fail/artifacts/
-coswara-fail/figures/
-coswara-fail/reports/*.html
-coswara-fail/reports/*.pdf
-coswara-fail/results.json
+# acute-illness-cross-corpus: non-model outputs (regenerable)
+acute-illness-cross-corpus/artifacts/
+acute-illness-cross-corpus/figures/
+acute-illness-cross-corpus/reports/*.html
+acute-illness-cross-corpus/reports/*.pdf
+acute-illness-cross-corpus/results.json
 
-# NOTE: ALL trained models are committed via Git LFS — the deployable models in
-# the experiment folders AND the full respiratory model set in coswara-fail/models/.
+# All trained models ARE committed, via Git LFS: the deployable model in each
+# experiment folder, plus the full respiratory model set in
+# acute-illness-cross-corpus/models/.
 
-# paper (excluded from version control) + generated pipeline outputs (reproducible)
+# paper drafts and regenerable per-task pipeline outputs
 paper/
 metrics.json
 work/
