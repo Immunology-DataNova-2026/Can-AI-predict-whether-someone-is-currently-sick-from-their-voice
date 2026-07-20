@@ -73,8 +73,6 @@ def _load_tabular_model(model_name: str, target: str):
 
 
 def _remap_proba(model, features, n_classes: int) -> np.ndarray:
-    """predict_proba, widened to n_classes columns in case a (per-type) model was
-    trained without seeing every class."""
     proba = model.predict_proba(features)
     model_classes = list(model.classes_)
     if len(model_classes) == n_classes and model_classes == list(range(n_classes)):
@@ -86,9 +84,6 @@ def _remap_proba(model, features, n_classes: int) -> np.ndarray:
 
 
 def _tabular_proba(model_name: str, target: str, features, clips_df, n_classes: int):
-    """Per-clip probabilities for a tree model. When PER_AUDIO_TYPE_TABULAR is on
-    and per-type models exist, each clip is scored by the model for its audio
-    type; otherwise a single model scores all clips."""
     if config.PER_AUDIO_TYPE_TABULAR:
         audio_types = clips_df["audio_type"].to_numpy()
         proba = np.zeros((features.shape[0], n_classes))
@@ -206,7 +201,6 @@ def _bootstrap_ci(
 def _bootstrap_accuracy_vs_baseline(
     y_true: np.ndarray, pred: np.ndarray, baseline_accuracy: float
 ) -> tuple[tuple[float, float], float]:
-    """Bootstrap the ensemble's accuracy and report how often it beats a fixed baseline."""
     rng = np.random.default_rng(config.RANDOM_SEED)
     n_samples = len(y_true)
     accuracies = []
@@ -236,8 +230,6 @@ def _collect_metrics(
 
 
 def _tune_binary_threshold(y_val, val_prob_class1, metric: str) -> float:
-    """Pick the class-1 probability cutoff on validation that maximizes the given
-    metric, instead of the majority-biased default 0.5."""
     best_threshold, best_score = 0.5, -1.0
     for threshold in np.linspace(0.05, 0.95, 91):
         pred = (val_prob_class1 >= threshold).astype(int)
@@ -372,8 +364,6 @@ def _plot_calibration(
 def _aggregate_by_participant(
     participant_ids: np.ndarray, y_true: np.ndarray, probs: dict[str, np.ndarray]
 ) -> tuple[np.ndarray, np.ndarray, dict[str, np.ndarray]]:
-    """Average per-clip probabilities across each participant's clips (vowel/cough/breathing)
-    so a participant gets one final prediction instead of one per audio clip."""
     unique_ids = pd.unique(participant_ids)
     labels_by_id = pd.Series(y_true).groupby(participant_ids, sort=False).first()
     aggregated_y_true = labels_by_id.loc[unique_ids].values
@@ -389,17 +379,6 @@ def _stack_meta_features(probs: dict[str, np.ndarray]) -> np.ndarray:
 
 
 def _build_meta_learner():
-    """Stacker that combines base-model predictions. Logistic is the safe default
-    on the small validation set; a gradient-boosted stacker can capture nonlinear
-    model interactions but risks overfitting so few participants.
-
-    class_weight="balanced" matters here: without it, the meta-model is fit to
-    minimize plain (majority-biased) error on a small, imbalanced validation set,
-    so it learns to trust whichever base model has the highest *raw* accuracy
-    (usually the tree models) rather than the one that actually handles the
-    minority classes best (e.g. the CNN) - the ensemble can then underperform
-    its own best base learner on balanced accuracy, which class weighting fixes.
-    """
     if getattr(config, "STACK_META_LEARNER", "logistic") == "gbm":
         from sklearn.ensemble import HistGradientBoostingClassifier
 
@@ -421,13 +400,6 @@ def _build_meta_learner():
 def _participant_meta_extras(
     participant_ids: np.ndarray, clip_probs: dict[str, np.ndarray]
 ) -> np.ndarray:
-    """Per-participant reliability signals for the stacker, computed from the
-    raw per-clip predictions before they are averaged: how many clips the
-    participant has, and how much those clips disagree (std of the per-clip
-    mean prediction). A participant whose clips all agree is more trustworthy
-    than one whose clips are split, and the meta-model can learn to use that.
-    Rows are aligned to pd.unique(participant_ids), matching the aggregation.
-    """
     per_clip_mean = np.mean([clip_probs[model_name] for model_name in sorted(clip_probs)], axis=0)
     unique_ids = pd.unique(participant_ids)
     clip_mean_df = pd.DataFrame(per_clip_mean)

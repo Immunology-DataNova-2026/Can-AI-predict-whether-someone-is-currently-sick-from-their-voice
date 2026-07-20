@@ -82,12 +82,6 @@ def extract_features_and_spectrogram(
     target_spec_frames: int,
     audio_type: str,
 ) -> tuple[dict[str, float], np.ndarray]:
-    """Loads the audio once and shares a single STFT/mel-spectrogram across every
-    feature that needs one (mfcc, spectral stats, chroma, onset, the CNN
-    spectrogram itself) instead of each librosa call silently recomputing its
-    own FFT from scratch. Pitch tracking (pyin) only runs for vowel clips -
-    cough/breathing aren't pitched, so running it there mostly measured noise.
-    """
     waveform, sample_rate = librosa.load(path, sr=sample_rate, mono=True)
     features: dict[str, float] = {}
 
@@ -267,8 +261,6 @@ def run_extract(args) -> None:
 
 
 def _embed_paths(paths: list[str], model_key: str, batch_size: int) -> np.ndarray:
-    """Mean-pooled hidden states of a frozen pretrained audio model, one vector
-    per clip. Masks padding so shorter clips aren't diluted by zeros."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     bundle = getattr(torchaudio.pipelines, model_key)
     model_sample_rate = bundle.sample_rate
@@ -309,7 +301,6 @@ def _embed_paths(paths: list[str], model_key: str, batch_size: int) -> np.ndarra
 
 
 def extract_dataset_embeddings(dataset_name: str, features_df: pd.DataFrame) -> np.ndarray:
-    """Embeddings for an external dataset feature table (called by preprocessing.py)."""
     embeddings = _embed_paths(
         features_df["processed_audio_path"].tolist(),
         config.EMBEDDING_MODEL,

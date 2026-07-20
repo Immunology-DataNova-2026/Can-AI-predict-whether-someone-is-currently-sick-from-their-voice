@@ -67,12 +67,6 @@ def _peak_normalize(waveform: np.ndarray) -> np.ndarray:
 
 
 def _highest_energy_window(waveform: np.ndarray, target_samples: int) -> np.ndarray:
-    """Slides a target_samples window across the waveform and returns the one with
-    the most energy, instead of blindly grabbing the center. A blind center-crop on
-    a much longer recording (e.g. Sound-Dr's ~23s sessions vs. our 5s target) risks
-    landing in a silent gap between coughs or slicing straight through one -
-    losing the actual signal, not just shifting it. Energy is a cheap, reliable
-    proxy for "where the cough/breath/speech actually is" vs. background noise."""
     total_samples = len(waveform)
     hop_size = max(1, target_samples // 20)
     window_starts = list(range(0, total_samples - target_samples + 1, hop_size))
@@ -192,10 +186,6 @@ def _resolve_bool(value: object) -> bool | None:
 
 
 def _infer_label(row: pd.Series) -> tuple[str | None, str | None]:
-    """Harmonized 'currently sick' label (Option 1), matching the external
-    datasets: symptomatic -> sick, healthy-and-asymptomatic -> not sick, and
-    everything else (asymptomatic non-healthy: asymp positives, exposed,
-    recovered, under-validation) -> excluded as ambiguous."""
     raw_status = str(row.get("covid_status", "")).strip().lower()
     has_symptom_signal = any(
         _resolve_bool(row.get(symptom)) is True for symptom in config.SICK_SYMPTOMS
@@ -557,9 +547,6 @@ def _sounddr_rows() -> pd.DataFrame:
 
 
 def _balanced_subsample(rows_df: pd.DataFrame, max_clips: int, seed: int) -> pd.DataFrame:
-    """Cap the number of clips at max_clips, drawn class-balanced on is_sick so the
-    cross-dataset test set stays representative. Returns rows_df unchanged if it is
-    already at or under the cap (or if max_clips <= 0, meaning 'no cap')."""
     if max_clips <= 0 or len(rows_df) <= max_clips:
         return rows_df
     per_class = max_clips // 2

@@ -1,16 +1,3 @@
-"""DataNova 2026 - control experiments for the voice pipelines.
-
-    python controls_voice.py
-
-Fills two gaps the paper names:
-  * bootstrap 95% CIs for the Sakar and SVD per-speaker AUCs
-  * acoustic feature importance, grouped by family, for Sakar
-
-Reuses each task's committed configuration (seed 42, GroupKFold(5) by speaker).
-Nothing is retrained differently, retuned, or reseeded.
-
-Writes reports/controls_voice.md and reports/feature_importance_sakar.csv.
-"""
 from __future__ import annotations
 
 import json
@@ -82,15 +69,11 @@ def run_voice():
              f"- per-speaker AUC: {auc:.3f}  95% CI [{alo:.3f}, {ahi:.3f}]",
              f"- per-speaker accuracy: {acc:.3f}  95% CI [{clo:.3f}, {chi:.3f}]", ""]
 
-    # ---- which acoustic features actually matter
     mi = pd.Series(mutual_info_classif(np.nan_to_num(X), y, random_state=SEED),
                    index=cols).sort_values(ascending=False)
     model.fit(X, y)
     imp = pd.Series(model.steps[-1][1].feature_importances_, index=cols).sort_values(ascending=False)
     top25_names = mi.head(25).index
-    # NOTE: pd.DataFrame({"mi": mi, "imp": imp}).head(25) silently reindexes when the
-    # two Series share the same labels in a different order, so it does NOT give the
-    # top-25-by-MI rows. Build it explicitly in mi's order instead.
     feat = pd.DataFrame({"mutual_information": mi.loc[top25_names],
                         "rf_importance": imp.loc[top25_names]})
     feat["family"] = [_family(c) for c in feat.index]
@@ -108,7 +91,6 @@ def run_voice():
         c = int(fam_counts.get(f, 0))
         lines.append(f"| {f} | {c} | {c/25:.0%} |")
 
-    # ---- SVD bootstrap (added: not in the original draft, requested "if straightforward")
     svd_csv = Path("external_datasets/SVD/svd_boost_features.csv")
     if svd_csv.exists():
         from sklearn.preprocessing import StandardScaler

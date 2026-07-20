@@ -51,7 +51,6 @@ SPLIT_DATA_PATH = ARTIFACTS_DIR / "split_data.joblib"
 
 
 class ResidualBlock(nn.Module):
-    """Two 3x3 convs with a skip connection; downsamples via stride-2 on the first conv."""
 
     def __init__(self, in_channels: int, out_channels: int, downsample: bool = True):
         super().__init__()
@@ -109,8 +108,6 @@ class CNNClassifier(nn.Module):
 
 
 class Wav2Vec2Classifier(nn.Module):
-    """wav2vec2 backbone with the top `unfreeze_layers` transformer layers trainable
-    plus a fresh classification head, for end-to-end fine-tuning."""
 
     def __init__(self, num_classes: int, unfreeze_layers: int, dropout: float):
         super().__init__()
@@ -136,7 +133,6 @@ class Wav2Vec2Classifier(nn.Module):
 
 
 class SpectrogramDataset(Dataset):
-    """Loads a saved mel-spectrogram .npy per row, paired with a label column."""
 
     def __init__(self, clips_df: pd.DataFrame, label_col: str = "is_sick", augment: bool = False):
         self.clips_df = clips_df.reset_index(drop=True)
@@ -173,7 +169,6 @@ class SpectrogramDataset(Dataset):
 
 
 class WaveformDataset(Dataset):
-    """Loads each clip's processed wav at 16kHz, fixed to FINETUNE_MAX_SAMPLES."""
 
     def __init__(self, clips_df: pd.DataFrame, label_col: str, augment: bool = False):
         self.clips_df = clips_df.reset_index(drop=True)
@@ -204,8 +199,6 @@ class WaveformDataset(Dataset):
 
 
 class FocalLoss(nn.Module):
-    """Cross-entropy scaled by (1-p_t)^gamma so easy, confident (usually majority)
-    examples contribute little and training focuses on the hard minority ones."""
 
     def __init__(self, gamma: float, weight=None):
         super().__init__()
@@ -265,7 +258,6 @@ def train_tabular_model(model_name: str, target: str, seed: int, balancing: str)
 
 
 def train_embedding_model(target: str, seed: int, emb_key: str = "emb", model_name: str = "embedding") -> dict | None:
-    """Linear head on frozen pretrained embeddings, used as a base learner."""
     bundle = joblib.load(SPLIT_DATA_PATH)
     if f"{emb_key}_train" not in bundle:
         print(f"skipping {model_name} model ({target}): no '{emb_key}' in split bundle")
@@ -292,8 +284,6 @@ def _maybe_smote(features, labels, balancing: str, min_class_count: int, seed: i
 
 
 def train_tabular_per_type(model_name: str, target: str, seed: int, balancing: str):
-    """Trains a separate tree model per clip type (cough/breathing/vowel) on that
-    type's rows only. evaluate.py routes each clip to its type's model."""
     bundle = joblib.load(SPLIT_DATA_PATH)
     train_df = bundle["train_df"].reset_index(drop=True)
     all_train_features = np.asarray(bundle["X_train"])
@@ -446,8 +436,6 @@ def train_cnn(
 
 
 def search_cnn(target: str, epochs: int, batch_size: int, early_stopping_patience: int, seed: int, n_trials: int) -> dict:
-    """Randomized search over CNN regularization/optimization hyperparameters; keeps
-    the checkpoint with the lowest val loss as the canonical model_cnn_{target}.pth."""
     rng = np.random.default_rng(seed)
     search_space = config.CNN_SEARCH_SPACE
     final_path = MODELS_DIR / f"model_cnn_{target}.pth"

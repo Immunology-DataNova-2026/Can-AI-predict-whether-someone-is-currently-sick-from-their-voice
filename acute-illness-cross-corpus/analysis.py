@@ -585,9 +585,6 @@ def _xd_feature_columns(df: pd.DataFrame) -> list[str]:
 
 
 def _xd_load(name: str) -> dict:
-    """Load one dataset's cough clips: numeric features, wav2vec2 embeddings
-    (row-aligned and sliced to the same cough rows), binary label, participant
-    ids. Raises FileNotFoundError if the dataset hasn't been built yet."""
     csv_path, emb_path = _XD_FEATURE_PATHS[name]
     if not csv_path.exists() or not emb_path.exists():
         raise FileNotFoundError(
@@ -611,8 +608,6 @@ def _xd_load(name: str) -> dict:
 
 
 def _xd_agg_by_participant(pids: np.ndarray, y: np.ndarray, p_sick: np.ndarray):
-    """Collapse clip-level predictions to one row per participant (mean sick
-    probability, participant's true label) so multi-clip participants count once."""
     agg = (
         pd.DataFrame({"pid": pids, "y": y, "p": p_sick})
         .groupby("pid")
@@ -637,9 +632,6 @@ def _xd_metrics(y_true: np.ndarray, p_sick: np.ndarray) -> dict:
 
 
 def _xd_zscore_own(matrix: np.ndarray) -> np.ndarray:
-    """Z-score each column by the array's OWN mean/std (NaN-aware). Used for
-    per-dataset standardization so absolute per-corpus device/loudness offsets
-    can't act as a shortcut or as cross-corpus noise."""
     mu = np.nanmean(matrix, axis=0)
     sd = np.nanstd(matrix, axis=0)
     sd = np.where(sd == 0, 1.0, sd)
@@ -648,11 +640,6 @@ def _xd_zscore_own(matrix: np.ndarray) -> np.ndarray:
 
 def _xd_train_eval(train_sets: list[dict], test_set: dict, feat_cols: list[str],
                    standardize_per_dataset: bool = False) -> dict:
-    """Train a feature GBM + an embedding logistic model on the pooled train
-    datasets, score the test dataset, and report GBM-only / embedding-only /
-    ensemble-average metrics (participant-aggregated). When
-    standardize_per_dataset is on, every dataset (each train corpus and the test
-    corpus) is z-scored to its own stats before pooling."""
     if standardize_per_dataset:
         feat_tr_blocks = [_xd_zscore_own(s["df"][feat_cols].to_numpy(dtype=float)) for s in train_sets]
         emb_tr_blocks = [_xd_zscore_own(s["emb"]) for s in train_sets]
